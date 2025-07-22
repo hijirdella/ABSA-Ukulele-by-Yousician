@@ -58,7 +58,7 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)
 
     # Ekstraksi aspek dan label sentimen
-    df['aspect'] = df['review'].apply(extract_aspect)
+    df['aspek'] = df['review'].apply(extract_aspect)
     df['sentimen'] = df['predicted_sentiment'].apply(map_sentiment)
 
     # Filter hanya yang Positif dan Negatif
@@ -72,7 +72,7 @@ if uploaded_file:
     fig, ax = plt.subplots(figsize=(10, 5))
     sns.countplot(
         data=df,
-        x='aspect',
+        x='aspek',
         hue='sentimen',
         order=aspek_order,
         hue_order=sentimen_order,
@@ -98,7 +98,7 @@ if uploaded_file:
     fig_pie, axes = plt.subplots(1, len(aspek_order), figsize=(16, 4))
     for i, aspek in enumerate(aspek_order):
         ax = axes[i]
-        data = df[df['aspect'] == aspek]['sentimen'].value_counts().reindex(sentimen_order, fill_value=0)
+        data = df[df['aspek'] == aspek]['sentimen'].value_counts().reindex(sentimen_order, fill_value=0)
         total = data.sum()
         ax.pie(
             data,
@@ -114,10 +114,10 @@ if uploaded_file:
 
     # Filter interaktif untuk tabel
     st.subheader("🔍 Filter Tabel Review")
-    aspek_filter = st.multiselect("Pilih Aspek:", options=sorted(df['aspect'].dropna().unique()), default=sorted(df['aspect'].dropna().unique()))
+    aspek_filter = st.multiselect("Pilih Aspek:", options=sorted(df['aspek'].dropna().unique()), default=sorted(df['aspek'].dropna().unique()))
     sentimen_filter = st.multiselect("Pilih Sentimen:", options=sorted(df['sentimen'].dropna().unique()), default=sorted(df['sentimen'].dropna().unique()))
 
-    filtered_df = df[(df['aspect'].isin(aspek_filter)) & (df['sentimen'].isin(sentimen_filter))]
+    filtered_df = df[(df['aspek'].isin(aspek_filter)) & (df['sentimen'].isin(sentimen_filter))]
 
     # Unduh hasil
     st.subheader("📥 Unduh Hasil dengan Aspek dan Sentimen")
@@ -125,4 +125,4 @@ if uploaded_file:
     st.download_button("📤 Download CSV", data=csv, file_name="hasil_absa_yousician.csv", mime='text/csv')
 
     # Tampilkan tabel dengan filter
-    st.dataframe(filtered_df[['name', 'star_rating', 'date', 'review', 'aspect', 'sentimen']])
+    st.dataframe(filtered_df[['name', 'star_rating', 'date', 'review', 'aspek', 'sentimen']])
