@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import seaborn as sns
@@ -65,7 +64,7 @@ if uploaded_file:
     # Filter hanya yang Positif dan Negatif
     df = df[df['sentimen'].isin(['Positif', 'Negatif'])]
 
-    st.subheader("📊 Distribusi Sentimen per Aspek")
+    st.subheader("📊 Distribusi Sentimen per Aspek - Bar Chart")
     color_map = {'Negatif': '#e74c3c', 'Positif': '#3498db'}
     aspek_order = ['Lagu', 'Harga', 'Tutorial', 'Login', 'Teknis']
     sentimen_order = ['Negatif', 'Positif']
@@ -93,6 +92,26 @@ if uploaded_file:
     ax.set_ylabel("Jumlah Ulasan")
     ax.legend(title="Sentimen")
     st.pyplot(fig)
+
+    # Pie chart per aspek
+    st.subheader("📊 Distribusi Sentimen per Aspek - Pie Chart")
+    fig_pie, axes = plt.subplots(1, len(aspek_order), figsize=(16, 4))
+    for i, aspek in enumerate(aspek_order):
+        ax = axes[i]
+        data = df[df['aspect'] == aspek]['sentimen'].value_counts().reindex(sentimen_order, fill_value=0)
+        total = data.sum()
+        labels = [f'{label} ({value:,})' for label, value in zip(sentimen_order, data)]
+        ax.pie(
+            data,
+            labels=[f"{label}\n{value/total:.1%}" for label, value in zip(sentimen_order, data)],
+            colors=[color_map[s] for s in sentimen_order],
+            startangle=140,
+            textprops={'fontsize': 8},
+            autopct=None
+        )
+        ax.set_title(f"Aspek: {aspek}", fontsize=10, weight='bold')
+    fig_pie.suptitle("Persentase Sentimen per Aspek (ABSA) - Ukulele by Yousician", fontsize=14, weight='bold')
+    st.pyplot(fig_pie)
 
     # Unduh hasil
     st.subheader("📥 Unduh Hasil dengan Aspek dan Sentimen")
