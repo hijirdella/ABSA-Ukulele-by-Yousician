@@ -100,7 +100,6 @@ if uploaded_file:
         ax = axes[i]
         data = df[df['aspect'] == aspek]['sentimen'].value_counts().reindex(sentimen_order, fill_value=0)
         total = data.sum()
-        labels = [f'{label} ({value:,})' for label, value in zip(sentimen_order, data)]
         ax.pie(
             data,
             labels=[f"{label}\n{value/total:.1%}" for label, value in zip(sentimen_order, data)],
@@ -113,9 +112,17 @@ if uploaded_file:
     fig_pie.suptitle("Persentase Sentimen per Aspek (ABSA) - Ukulele by Yousician", fontsize=14, weight='bold')
     st.pyplot(fig_pie)
 
+    # Filter interaktif untuk tabel
+    st.subheader("🔍 Filter Tabel Review")
+    aspek_filter = st.multiselect("Pilih Aspek:", options=sorted(df['aspect'].dropna().unique()), default=sorted(df['aspect'].dropna().unique()))
+    sentimen_filter = st.multiselect("Pilih Sentimen:", options=sorted(df['sentimen'].dropna().unique()), default=sorted(df['sentimen'].dropna().unique()))
+
+    filtered_df = df[(df['aspect'].isin(aspek_filter)) & (df['sentimen'].isin(sentimen_filter))]
+
     # Unduh hasil
     st.subheader("📥 Unduh Hasil dengan Aspek dan Sentimen")
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button("📤 Download CSV", data=csv, file_name="hasil_absa_yousician.csv", mime='text/csv')
 
-    st.dataframe(df[['name', 'star_rating', 'date', 'review', 'aspect', 'sentimen']])
+    # Tampilkan tabel dengan filter
+    st.dataframe(filtered_df[['name', 'star_rating', 'date', 'review', 'aspect', 'sentimen']])
